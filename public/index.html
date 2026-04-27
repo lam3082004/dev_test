@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiếu Nhập Kho - Mẫu 01-VT</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Times New Roman', serif;
+      background: #f5f5f0;
+      padding: 24px 16px;
+      color: #111;
+    }
+    .page-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      justify-content: flex-end;
+    }
+    .toolbar a {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      text-decoration: none;
+      color: #555;
+      border: 1px solid #ccc;
+      padding: 6px 14px;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .toolbar a:hover { background: #eee; }
+
+    .phieu {
+      background: #fff;
+      border: 1px solid #999;
+      padding: 24px 28px;
+    }
+    .phieu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .don-vi-block { font-size: 12.5px; line-height: 1.7; }
+    .don-vi-block label { font-weight: bold; }
+    .mau-so-block { text-align: center; font-size: 11px; line-height: 1.5; }
+    .mau-so-block strong { font-size: 13px; display: block; }
+    .checkbox-box {
+      width: 14px; height: 14px;
+      border: 1px solid #555;
+      display: inline-block;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .phieu-title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 12px 0 4px;
+    }
+    .phieu-sub {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin: 2px 0;
+      align-items: baseline;
+    }
+    .phieu-sub .no-co { text-align: right; min-width: 130px; }
+    input[type="text"], input[type="number"], input[type="date"] {
+      border: none;
+      border-bottom: 1px dotted #555;
+      background: transparent;
+      outline: none;
+      font-family: 'Times New Roman', serif;
+      font-size: 12.5px;
+      color: #111;
+      padding: 0 2px;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus {
+      border-bottom-color: #0066cc;
+      background: #f0f8ff;
+    }
+    .info-section { margin: 10px 0; font-size: 12.5px; line-height: 2; }
+    .info-line { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .info-line .lbl { white-space: nowrap; }
+    .info-line input[type="text"] { flex: 1; min-width: 60px; }
+    table.hang-hoa {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      margin: 10px 0;
+    }
+    table.hang-hoa th, table.hang-hoa td {
+      border: 1px solid #555;
+      padding: 3px 5px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    table.hang-hoa thead th {
+      background: #f0f0e8;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+    table.hang-hoa tbody tr:hover { background: #fafaf5; }
+    table.hang-hoa td input {
+      width: 100%;
+      text-align: center;
+      font-size: 11.5px;
+    }
+    table.hang-hoa td.col-ten input { text-align: left; }
+    table.hang-hoa tfoot td {
+      font-weight: bold;
+      font-style: italic;
+      background: #f0f0e8;
+    }
+    .phieu-footer { font-size: 12.5px; line-height: 2; margin-top: 6px; }
+    .phieu-footer .f-line { display: flex; align-items: center; gap: 4px; }
+    .phieu-footer input[type="text"] { flex: 1; }
+    .ky-ten-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      font-size: 11.5px;
+      text-align: center;
+    }
+    .ky-ten-col { min-width: 110px; }
+    .ky-ten-col .role { font-weight: bold; margin-bottom: 2px; }
+    .ky-ten-col .note { font-style: italic; color: #555; font-size: 10.5px; line-height: 1.4; }
+    .ky-ten-col input {
+      margin-top: 28px;
+      width: 110px;
+      text-align: center;
+      font-size: 11.5px;
+      border-bottom: 1px dotted #555;
+    }
+    .btn-section {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #aaa;
+      background: #f8f8f8;
+    }
+    .btn:hover { background: #e8e8e8; }
+    .btn-primary {
+      background: #1a5fa8;
+      color: #fff;
+      border-color: #1a5fa8;
+      font-weight: bold;
+    }
+    .btn-primary:hover { background: #154d8a; }
+    .btn-danger { border-color: #c33; color: #c33; }
+    .btn-danger:hover { background: #fff0f0; }
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      background: #222; color: #fff;
+      padding: 10px 24px; border-radius: 6px;
+      font-family: Arial, sans-serif; font-size: 13px;
+      display: none; z-index: 999;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    #toast.success { background: #1a7a3c; }
+    #toast.error   { background: #a32020; }
+    #loading {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.7);
+      z-index: 998;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    #loading.show { display: flex; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div class="toolbar">
+    <a href="/list.html">Danh sách phiếu</a>
+    <a href="#" onclick="resetForm()">Làm mới</a>
+  </div>
+
+  <div class="phieu" id="phieu">
+    <div class="phieu-header">
+      <div class="don-vi-block">
+        <div><label>Đơn vị:</label> <input type="text" id="don_vi" style="width:140px" placeholder="..."></div>
+        <div><label>Bộ phận:</label> <input type="text" id="bo_phan" style="width:140px" placeholder="..."></div>
+      </div>
+      <div class="mau-so-block">
+        <strong>Mẫu số 01 - VT</strong>
+        <div>(Ban hành theo Thông tư số 200/2014/TT-BTC</div>
+        <div>Ngày 22/12/2014 của Bộ Tài chính)</div>
+        <div style="text-align:right; margin-top:4px"><span class="checkbox-box"></span></div>
+      </div>
+    </div>
+
+    <div class="phieu-title">PHIẾU NHẬP KHO</div>
+
+    <div class="phieu-sub">
+      <span>
+        Ngày&nbsp;<input type="number" id="ngay" min="1" max="31" style="width:32px" placeholder="..">
+        &nbsp;tháng&nbsp;<input type="number" id="thang" min="1" max="12" style="width:32px" placeholder="..">
+        &nbsp;năm&nbsp;<input type="number" id="nam" style="width:52px" placeholder="2024">
+      </span>
+      <div class="no-co">Nợ ...</div>
+    </div>
+    <div class="phieu-sub">
+      <span>Số:&nbsp;<input type="text" id="receipt_number" style="width:150px" placeholder="PN-2024-001"></span>
+      <div class="no-co">Có ...<br>...</div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #aaa;margin:8px 0">
+
+    <div class="info-section">
+      <div class="info-line">
+        <span class="lbl">- Họ và tên người giao:</span>
+        <input type="text" id="deliverer_name" style="min-width:200px" placeholder="Nguyễn Văn A">
+      </div>
+      <div class="info-line">
+        <span class="lbl">- Theo</span>
+        <input type="text" id="theo_so" style="width:80px" placeholder="số...">
+        <span class="lbl">ngày</span>
+        <input type="text" id="theo_ngay" style="width:50px" placeholder="...">
+        <span class="lbl">tháng</span>
+        <input type="text" id="theo_thang" style="width:40px" placeholder="...">
+        <span class="lbl">năm</span>
+        <input type="text" id="theo_nam" style="width:50px" placeholder="...">
+        <span class="lbl">của</span>
+        <input type="text" id="theo_cua" placeholder="...">
+      </div>
+      <div class="info-line">
+        <span class="lbl">Nhập tại kho:</span>
+        <input type="text" id="warehouse" style="width:160px" placeholder="Kho A">
+        <span class="lbl">địa điểm:</span>
+        <input type="text" id="dia_diem" placeholder="...">
+      </div>
+    </div>
+
+    <table class="hang-hoa">
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:30px">S<br>T<br>T</th>
+          <th rowspan="2" style="min-width:160px">Tên, nhãn hiệu, quy cách,<br>phẩm chất vật tư, dụng cụ<br>sản phẩm, hàng hoá</th>
+          <th rowspan="2" style="width:48px">Mã<br>số</th>
+          <th rowspan="2" style="width:42px">Đơn<br>vị<br>tính</th>
+          <th colspan="2">Số lượng</th>
+          <th rowspan="2" style="width:68px">Đơn giá</th>
+          <th rowspan="2" style="width:80px">Thành tiền</th>
+        </tr>
+        <tr>
+          <th style="width:58px">Theo<br>chứng từ</th>
+          <th style="width:58px">Thực<br>nhập</th>
+        </tr>
+        <tr style="font-style:italic; font-size:11px; background:#f5f5ec">
+          <td>A</td><td>B</td><td>C</td><td>D</td>
+          <td>1</td><td>2</td><td>3</td><td>4</td>
+        </tr>
+      </thead>
+      <tbody id="items-body"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Cộng</td>
+          <td id="foot-ct">x</td>
+          <td id="foot-tn">x</td>
+          <td>x</td>
+          <td id="foot-tt"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="phieu-footer">
+      <div class="f-line">
+        <span>- Tổng số tiền (viết bằng chữ):</span>
+        <input type="text" id="total_text" placeholder="Bằng chữ...">
+      </div>
+      <div class="f-line" style="margin-top:2px">
+        <span>- Số chứng từ gốc kèm theo:</span>
+        <input type="number" id="so_chung_tu" style="width:50px" placeholder="0">
+      </div>
+    </div>
+
+    <div class="ky-ten-row">
+      <div class="ky-ten-col">
+        <div class="role">Người lập phiếu</div>
+        <div class="note">(Ký, họ tên)</div>
+        <input type="text" id="creator_name" placeholder="Họ và tên">
+      </div>
+      <div class="ky-ten-col">
+        <div class="role">Người giao hàng</div>
+        <div class="note">(Ký, họ tên)</div>
+        <input type="text" id="deliverer_sign" placeholder="Họ và tên">
+      </div>
+      <div class="ky-ten-col">
+        <div class="role">Thủ kho</div>
+        <div class="note">(Ký, họ tên)</div>
+        <input type="text" id="warehouse_keeper" placeholder="Họ và tên">
+      </div>
+      <div class="ky-ten-col">
+        <div class="role">Kế toán trưởng</div>
+        <div class="note">(Hoặc bộ phận<br>có nhu cầu nhập)<br>(Ký, họ tên)</div>
+        <input type="text" id="accountant_name" placeholder="Họ và tên">
+      </div>
+    </div>
+
+    <div class="btn-section">
+      <button class="btn" onclick="addRow()">+ Thêm dòng</button>
+      <button class="btn btn-danger" onclick="removeLastRow()">- Xoá dòng</button>
+      <button class="btn btn-primary" onclick="submitForm()">Lưu phiếu nhập kho</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="loading"><span>Đang lưu phiếu...</span></div>
+
+<script>
+  const API = '/api/receipts';
+  let rowCount = 0;
+
+  function addRow() {
+    rowCount++;
+    const n = rowCount;
+    const tr = document.createElement('tr');
+    tr.id = 'r' + n;
+    tr.innerHTML = `
+      <td>${n}</td>
+      <td class="col-ten"><input type="text" id="pn${n}" placeholder="Tên hàng hóa..."></td>
+      <td><input type="text" id="pc${n}" style="width:42px" placeholder="..."></td>
+      <td><input type="text" id="un${n}" style="width:38px" placeholder="cái"></td>
+      <td><input type="number" id="qd${n}" min="0" step="any" style="width:52px" oninput="calcRow(${n})" placeholder="0"></td>
+      <td><input type="number" id="qa${n}" min="0" step="any" style="width:52px" oninput="calcRow(${n})" placeholder="0"></td>
+      <td><input type="number" id="up${n}" min="0" step="any" style="width:62px" oninput="calcRow(${n})" placeholder="0"></td>
+      <td id="am${n}" style="font-weight:bold; white-space:nowrap"></td>
+    `;
+    document.getElementById('items-body').appendChild(tr);
+  }
+
+  function removeLastRow() {
+    if (rowCount < 1) return;
+    const row = document.getElementById('r' + rowCount);
+    if (row) row.remove();
+    rowCount--;
+    recalcFooter();
+  }
+
+  function calcRow(n) {
+    const qa = parseFloat(document.getElementById('qa' + n)?.value) || 0;
+    const up = parseFloat(document.getElementById('up' + n)?.value) || 0;
+    const am = qa * up;
+    const el = document.getElementById('am' + n);
+    if (el) el.textContent = am > 0 ? fmtVND(am) : '';
+    recalcFooter();
+  }
+
+  function recalcFooter() {
+    let totCT = 0;
+    let totTN = 0;
+    let totAM = 0;
+    for (let i = 1; i <= rowCount; i++) {
+      totCT += parseFloat(document.getElementById('qd' + i)?.value) || 0;
+      totTN += parseFloat(document.getElementById('qa' + i)?.value) || 0;
+      const qa = parseFloat(document.getElementById('qa' + i)?.value) || 0;
+      const up = parseFloat(document.getElementById('up' + i)?.value) || 0;
+      totAM += qa * up;
+    }
+    document.getElementById('foot-ct').textContent = totCT > 0 ? fmtNum(totCT) : 'x';
+    document.getElementById('foot-tn').textContent = totTN > 0 ? fmtNum(totTN) : 'x';
+    document.getElementById('foot-tt').textContent = totAM > 0 ? fmtVND(totAM) : '';
+    if (totAM > 0) {
+      document.getElementById('total_text').placeholder = numToWords(Math.round(totAM));
+    }
+  }
+
+  async function submitForm() {
+    const ngay = document.getElementById('ngay').value;
+    const thang = document.getElementById('thang').value;
+    const nam = document.getElementById('nam').value;
+
+    if (!nam || !thang || !ngay) {
+      showToast('Vui lòng nhập ngày tháng năm!', 'error');
+      return;
+    }
+    const dateStr = `${nam}-${String(thang).padStart(2, '0')}-${String(ngay).padStart(2, '0')}`;
+
+    const items = [];
+    for (let i = 1; i <= rowCount; i++) {
+      const pn = document.getElementById('pn' + i)?.value?.trim();
+      if (!pn) continue;
+      const qa = parseFloat(document.getElementById('qa' + i)?.value) || 0;
+      const up = parseFloat(document.getElementById('up' + i)?.value) || 0;
+      items.push({
+        line_number: i,
+        product_name: pn,
+        product_code: document.getElementById('pc' + i)?.value?.trim(),
+        unit_name: document.getElementById('un' + i)?.value?.trim() || '',
+        quantity_doc: parseFloat(document.getElementById('qd' + i)?.value) || 0,
+        quantity_actual: qa,
+        unit_price: up,
+        amount: qa * up,
+      });
+    }
+
+    const body = {
+      receipt_number: document.getElementById('receipt_number').value.trim(),
+      don_vi: document.getElementById('don_vi').value.trim(),
+      bo_phan: document.getElementById('bo_phan').value.trim(),
+      date: dateStr,
+      deliverer_name: document.getElementById('deliverer_name').value.trim(),
+      theo_so: document.getElementById('theo_so').value.trim(),
+      theo_ngay:
+        document.getElementById('theo_ngay').value.trim() +
+        '/' +
+        document.getElementById('theo_thang').value.trim() +
+        '/' +
+        document.getElementById('theo_nam').value.trim(),
+      theo_cua: document.getElementById('theo_cua').value.trim(),
+      warehouse: document.getElementById('warehouse').value.trim(),
+      dia_diem: document.getElementById('dia_diem').value.trim(),
+      total_text: document.getElementById('total_text').value.trim(),
+      so_chung_tu: parseInt(document.getElementById('so_chung_tu').value, 10) || 0,
+      creator_name: document.getElementById('creator_name').value.trim(),
+      warehouse_keeper: document.getElementById('warehouse_keeper').value.trim(),
+      accountant_name: document.getElementById('accountant_name').value.trim(),
+      items,
+    };
+
+    document.getElementById('loading').classList.add('show');
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Lưu phiếu thành công! ID: ' + data.data.id, 'success');
+        setTimeout(() => {
+          if (confirm('Xem danh sách phiếu?')) location.href = '/list.html';
+        }, 1200);
+      } else {
+        const msg = data.errors ? data.errors.join('\n') : data.message;
+        showToast(msg, 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối server!', 'error');
+    } finally {
+      document.getElementById('loading').classList.remove('show');
+    }
+  }
+
+  function resetForm() {
+    if (!confirm('Làm mới phiếu? Dữ liệu chưa lưu sẽ mất.')) return;
+    document.querySelectorAll('input').forEach((i) => {
+      i.value = '';
+    });
+    document.getElementById('items-body').innerHTML = '';
+    rowCount = 0;
+    recalcFooter();
+    addRow();
+    addRow();
+  }
+
+  function fmtVND(n) {
+    return Math.round(n).toLocaleString('vi-VN') + ' đ';
+  }
+
+  function fmtNum(n) {
+    return parseFloat(n.toFixed(3)).toLocaleString('vi-VN');
+  }
+
+  function numToWords(n) {
+    if (n === 0) return 'Không đồng';
+    const dv = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+    function group3(x) {
+      const h = Math.floor(x / 100);
+      const t = Math.floor((x % 100) / 10);
+      const u = x % 10;
+      let s = '';
+      if (h) s += dv[h] + ' trăm ';
+      if (t > 1) s += dv[t] + ' mươi ' + (u ? dv[u] + ' ' : '');
+      else if (t === 1) s += 'mười ' + (u ? dv[u] + ' ' : '');
+      else if (u && h) s += 'lẻ ' + dv[u] + ' ';
+      else if (u) s += dv[u] + ' ';
+      return s;
+    }
+    let result = '';
+    const ty = Math.floor(n / 1e9);
+    const tr = Math.floor((n % 1e9) / 1e6);
+    const ngh = Math.floor((n % 1e6) / 1e3);
+    const rem = n % 1e3;
+    if (ty) result += group3(ty) + 'tỷ ';
+    if (tr) result += group3(tr) + 'triệu ';
+    if (ngh) result += group3(ngh) + 'nghìn ';
+    if (rem) result += group3(rem);
+    return result.trim() + ' đồng';
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type;
+    t.style.display = 'block';
+    setTimeout(() => {
+      t.style.display = 'none';
+    }, 3500);
+  }
+
+  addRow();
+  addRow();
+</script>
+</body>
+</html>

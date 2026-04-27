@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách phiếu nhập kho</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f0; padding: 24px; color: #111; }
+    h1 { font-size: 20px; margin-bottom: 16px; }
+    .toolbar { margin-bottom: 14px; }
+    .toolbar a { text-decoration:none; background:#1a5fa8; color:#fff; padding:8px 16px; border-radius:4px; font-size:13px; }
+    table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
+    th,td { border:1px solid #ccc; padding:7px 10px; }
+    th { background:#f0f0e8; font-weight:bold; }
+    tr:hover td { background:#f9f9f4; }
+    .actions { display:flex; gap:10px; align-items:center; }
+    .btn-view {
+      color:#1a5fa8;
+      border:none;
+      background:none;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:bold;
+    }
+    .btn-view:hover { text-decoration:underline; }
+    .btn-del { color:#c33; border:none; background:none; cursor:pointer; font-size:13px; }
+    .btn-del:hover { text-decoration:underline; }
+    .loading { color:#888; font-style:italic; }
+    .detail-box {
+      margin-top:18px;
+      background:#fff;
+      border:1px solid #ccc;
+      border-radius:6px;
+      padding:14px;
+      display:none;
+    }
+    .detail-box h2 {
+      margin:0 0 10px;
+      font-size:16px;
+    }
+    .detail-grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:8px 14px;
+      margin-bottom:12px;
+      font-size:13px;
+    }
+    .detail-items { margin-top:8px; }
+    .detail-items th, .detail-items td { font-size:12px; }
+  </style>
+</head>
+<body>
+  <h1>Danh sách phiếu nhập kho</h1>
+  <div class="toolbar">
+    <a href="/">+ Tạo phiếu mới</a>
+  </div>
+  <p id="status" class="loading">Đang tải...</p>
+  <table id="tbl" style="display:none">
+    <thead>
+      <tr>
+        <th>ID</th><th>Số phiếu</th><th>Ngày</th>
+        <th>Đơn vị</th><th>Người giao</th>
+        <th>Tổng tiền</th><th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <section id="detail-box" class="detail-box">
+    <h2>Chi tiết phiếu nhập kho</h2>
+    <div id="detail-summary" class="detail-grid"></div>
+    <table class="detail-items">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên hàng</th>
+          <th>Mã</th>
+          <th>Đơn vị</th>
+          <th>SL chứng từ</th>
+          <th>SL thực nhập</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody id="detail-items-body"></tbody>
+    </table>
+  </section>
+
+  <script>
+    function toCurrency(value) {
+      if (value == null) return '—';
+      return Math.round(Number(value)).toLocaleString('vi-VN') + ' đ';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '—')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    async function load() {
+      try {
+        const res = await fetch('/api/receipts');
+        const data = await res.json();
+        document.getElementById('status').style.display = 'none';
+        const tbody = document.getElementById('tbody');
+        if (!data.data.length) {
+          document.getElementById('status').textContent = 'Chưa có phiếu nào.';
+          document.getElementById('status').style.display = 'block';
+          return;
+        }
+        data.data.forEach((r) => {
+          const tr = document.createElement('tr');
+          const total = r.total_amount
+            ? Math.round(r.total_amount).toLocaleString('vi-VN') + ' đ'
+            : '—';
+          tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.receipt_number || '—'}</td>
+            <td>${r.date ? r.date.slice(0,10) : '—'}</td>
+            <td>${r.don_vi || '—'}</td>
+            <td>${r.deliverer_name || '—'}</td>
+            <td style="text-align:right">${total}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-view" onclick="viewDetail(${r.id})">Chi tiết</button>
+                <button class="btn-del" onclick="del(${r.id})">Xoá</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('tbl').style.display = 'table';
+      } catch (e) {
+        document.getElementById('status').textContent = 'Lỗi tải dữ liệu!';
+      }
+    }
+
+    async function viewDetail(id) {
+      try {
+        const res = await fetch('/api/receipts/' + id);
+        const payload = await res.json();
+
+        if (!payload.success) {
+          alert(payload.message || 'Không lấy được chi tiết phiếu');
+          return;
+        }
+
+        const r = payload.data;
+        const detailBox = document.getElementById('detail-box');
+        const summary = document.getElementById('detail-summary');
+        const itemsBody = document.getElementById('detail-items-body');
+
+        summary.innerHTML = `
+          <div><strong>ID:</strong> ${escapeHtml(r.id)}</div>
+          <div><strong>Số phiếu:</strong> ${escapeHtml(r.receipt_number)}</div>
+          <div><strong>Ngày:</strong> ${escapeHtml(r.date ? r.date.slice(0, 10) : '—')}</div>
+          <div><strong>Đơn vị:</strong> ${escapeHtml(r.don_vi)}</div>
+          <div><strong>Bộ phận:</strong> ${escapeHtml(r.bo_phan)}</div>
+          <div><strong>Người giao:</strong> ${escapeHtml(r.deliverer_name)}</div>
+          <div><strong>Kho:</strong> ${escapeHtml(r.warehouse)}</div>
+          <div><strong>Địa điểm:</strong> ${escapeHtml(r.dia_diem)}</div>
+          <div><strong>Tổng tiền:</strong> ${toCurrency(r.total_amount)}</div>
+          <div><strong>Số chứng từ:</strong> ${escapeHtml(r.so_chung_tu)}</div>
+          <div><strong>Người lập phiếu:</strong> ${escapeHtml(r.creator_name)}</div>
+          <div><strong>Kế toán trưởng:</strong> ${escapeHtml(r.accountant_name)}</div>
+        `;
+
+        const safeItems = Array.isArray(r.items) ? r.items.filter((x) => x && x.id != null) : [];
+        itemsBody.innerHTML = safeItems
+          .map(
+            (item) => `
+              <tr>
+                <td>${escapeHtml(item.line_number)}</td>
+                <td>${escapeHtml(item.product_name)}</td>
+                <td>${escapeHtml(item.product_code)}</td>
+                <td>${escapeHtml(item.unit_name)}</td>
+                <td>${escapeHtml(item.quantity_doc)}</td>
+                <td>${escapeHtml(item.quantity_actual)}</td>
+                <td style="text-align:right">${toCurrency(item.unit_price)}</td>
+                <td style="text-align:right">${toCurrency(item.amount)}</td>
+              </tr>
+            `
+          )
+          .join('');
+
+        if (!safeItems.length) {
+          itemsBody.innerHTML = '<tr><td colspan="8" style="text-align:center">Phiếu chưa có dòng hàng</td></tr>';
+        }
+
+        detailBox.style.display = 'block';
+        detailBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        alert('Lỗi tải chi tiết phiếu!');
+      }
+    }
+
+    async function del(id) {
+      if (!confirm('Xoá phiếu #' + id + '?')) return;
+      await fetch('/api/receipts/' + id, { method: 'DELETE' });
+      location.reload();
+    }
+
+    load();
+  </script>
+</body>
+</html>

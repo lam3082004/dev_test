@@ -1,0 +1,346 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Warehouse Management API",
+    "description": "API quan ly phieu nhap kho (mau 01-VT)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Receipts"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/receipts": {
+      "get": {
+        "tags": ["Receipts"],
+        "summary": "Lay danh sach phieu nhap kho",
+        "responses": {
+          "200": {
+            "description": "Danh sach phieu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Receipt"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Receipts"],
+        "summary": "Tao phieu nhap kho",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tao phieu thanh cong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Receipt"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tao phieu thanh cong"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Loi validate"
+          },
+          "500": {
+            "description": "Loi server"
+          }
+        }
+      }
+    },
+    "/api/receipts/{id}": {
+      "get": {
+        "tags": ["Receipts"],
+        "summary": "Lay chi tiet phieu theo ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thong tin phieu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Receipt"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Khong tim thay phieu"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Receipts"],
+        "summary": "Xoa phieu theo ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xoa thanh cong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Da xoa phieu"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReceiptItem": {
+        "type": "object",
+        "required": [
+          "line_number",
+          "product_name",
+          "unit_name",
+          "quantity_doc",
+          "quantity_actual",
+          "unit_price",
+          "amount"
+        ],
+        "properties": {
+          "line_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "product_name": {
+            "type": "string",
+            "example": "Thep hop 40x40"
+          },
+          "product_code": {
+            "type": "string",
+            "example": "TH-001"
+          },
+          "unit_name": {
+            "type": "string",
+            "example": "Cay"
+          },
+          "quantity_doc": {
+            "type": "number",
+            "example": 100
+          },
+          "quantity_actual": {
+            "type": "number",
+            "example": 100
+          },
+          "unit_price": {
+            "type": "number",
+            "example": 150000
+          },
+          "amount": {
+            "type": "number",
+            "example": 15000000
+          }
+        }
+      },
+      "ReceiptCreateRequest": {
+        "type": "object",
+        "required": ["date", "items"],
+        "properties": {
+          "receipt_number": {
+            "type": "string",
+            "example": "PN-2024-001"
+          },
+          "don_vi": {
+            "type": "string",
+            "example": "Cong ty ABC"
+          },
+          "bo_phan": {
+            "type": "string",
+            "example": "Kho vat tu"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-03-15"
+          },
+          "deliverer_name": {
+            "type": "string",
+            "example": "Nguyen Van A"
+          },
+          "theo_so": {
+            "type": "string",
+            "example": "PXK-001"
+          },
+          "theo_ngay": {
+            "type": "string",
+            "example": "15/03/2024"
+          },
+          "theo_cua": {
+            "type": "string",
+            "example": "Phong mua hang"
+          },
+          "warehouse": {
+            "type": "string",
+            "example": "Kho A"
+          },
+          "dia_diem": {
+            "type": "string",
+            "example": "Ha Noi"
+          },
+          "total_text": {
+            "type": "string",
+            "example": "Mot tram nam muoi trieu dong"
+          },
+          "so_chung_tu": {
+            "type": "integer",
+            "example": 2
+          },
+          "creator_name": {
+            "type": "string",
+            "example": "Tran Thi B"
+          },
+          "warehouse_keeper": {
+            "type": "string",
+            "example": "Le Van C"
+          },
+          "accountant_name": {
+            "type": "string",
+            "example": "Pham Thi D"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceiptItem"
+            }
+          }
+        }
+      },
+      "Receipt": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReceiptCreateRequest"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "total_amount": {
+                "type": "number",
+                "example": 17490000
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
