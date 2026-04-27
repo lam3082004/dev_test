@@ -2,6 +2,22 @@ import { Request, Response } from 'express';
 import pool from '../config/database';
 import { Receipt } from '../models/types';
 
+const getErrorMessage = (error: unknown): string => {
+  return error instanceof Error ? error.message : 'Unknown error';
+};
+
+const parseReceiptId = (id: string | string[] | undefined): number | null => {
+  if (typeof id !== 'string') {
+    return null;
+  }
+
+  const parsed = Number(id);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+};
+
 export const createReceipt = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
 
@@ -73,9 +89,7 @@ export const createReceipt = async (req: Request, res: Response): Promise<void> 
     });
   } catch (error: unknown) {
     await client.query('ROLLBACK');
-
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, message: getErrorMessage(error) });
   } finally {
     client.release();
   }
@@ -94,14 +108,17 @@ export const getAllReceipts = async (_req: Request, res: Response): Promise<void
 
     res.json({ success: true, data: result.rows });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, message: getErrorMessage(error) });
   }
 };
 
 export const getReceiptById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = parseReceiptId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ success: false, message: 'ID phiếu không hợp lệ' });
+      return;
+    }
 
     const result = await pool.query(
       `SELECT r.*,
@@ -120,17 +137,26 @@ export const getReceiptById = async (req: Request, res: Response): Promise<void>
 
     res.json({ success: true, data: result.rows[0] });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, message: getErrorMessage(error) });
   }
 };
 
 export const deleteReceipt = async (req: Request, res: Response): Promise<void> => {
   try {
-    await pool.query('DELETE FROM import_receipts WHERE id = $1', [req.params.id]);
+    const id = parseReceiptId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ success: false, message: 'ID phiếu không hợp lệ' });
+      return;
+    }
+
+    const result = await pool.query('DELETE FROM import_receipts WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      res.status(404).json({ success: false, message: 'Không tìm thấy phiếu' });
+      return;
+    }
+
     res.json({ success: true, message: 'Đã xoá phiếu' });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, message: getErrorMessage(error) });
   }
 };
